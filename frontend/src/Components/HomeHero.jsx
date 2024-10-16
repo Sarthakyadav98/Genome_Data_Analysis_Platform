@@ -21,26 +21,27 @@ const HeroSection = () => {
   };
 
   // Handle form submission
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
 
-    const loginData = loginType === 'Client' ? { clientId, password } : { scientistId, institutionId, password };
+    // Create the login data based on login type
+    const loginData = loginType === 'Client'
+      ? { clientId, password }
+      : { scientistId, institutionId, password };
 
     console.log('Login data:', loginData); // Log the login data
 
     try {
-        const response = await axios.post('http://localhost:3000/api/login', loginData);
-        console.log(response.data); // Log the response from the server
+      const response = await axios.post('http://localhost:3000/api/login', loginData);
+      console.log(response.data); // Log the response from the server
 
-        if (response.data.success) {
-            alert('Login successful!');
-            navigate('/dashboard'); // Navigate to the dashboard or another page
-        } else {
-            alert(response.data.message); // Show error message
-        }
+      if (response.data.success) {
+        alert('Login successful!');
+      } else {
+        alert(response.data.message);
+      }
     } catch (error) {
-        console.error('There was an error logging in!', error);
-        alert('There was an error during the login process.'); // Generic error message
+      console.error('There was an error logging in!', error);
     }
   };
 

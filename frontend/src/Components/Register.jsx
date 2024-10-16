@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-
 
 const RegisterForm = ({ loginType, toggleRegister }) => {
   const [name, setName] = useState('');
@@ -10,39 +8,6 @@ const RegisterForm = ({ loginType, toggleRegister }) => {
   const [clientId, setClientId] = useState('');
   const [scientistId, setScientistId] = useState('');
   const [institutionId, setInstitutionId] = useState('');
-
-  const navigate = useNavigate();
-
-  // In your handleSubmit method:
-  if (response.data.success) {
-      alert('Login successful!');
-      navigate('/dashboard'); // Replace history.push with navigate
-  } else {
-      alert(response.data.message); // Show error message
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-
-    const loginData = loginType === 'Client' ? { clientId, password } : { scientistId, institutionId, password };
-
-    console.log('Login data:', loginData); // Log the login data
-
-    try {
-        const response = await axios.post('http://localhost:3000/api/login', loginData);
-        console.log(response.data); // Log the response from the server
-
-        if (response.data.success) {
-            alert('Login successful!');
-            history.push('/dashboard'); // Navigate to the dashboard or another page
-        } else {
-            alert(response.data.message); // Show error message
-        }
-    } catch (error) {
-        console.error('There was an error logging in!', error);
-        alert('There was an error during the login process.'); // Generic error message
-    }
-};
 
   const handleRegister = async (e) => {
     e.preventDefault();
