@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import RegisterForm from '../Components/Register'; // Import the registration form component
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
 
 const HeroSection = () => {
   const [loginType, setLoginType] = useState('Client');
@@ -9,6 +11,9 @@ const HeroSection = () => {
   const [scientistId, setScientistId] = useState('');
   const [institutionId, setInstitutionId] = useState('');
   const [password, setPassword] = useState('');
+
+  const navigate = useNavigate();
+
 
   // Function to handle toggle between logins
   const toggleLoginType = () => {
@@ -37,11 +42,18 @@ const HeroSection = () => {
 
       if (response.data.success) {
         alert('Login successful!');
+        // Navigate to respective dashboard based on loginType
+        if (loginType === 'Client') {
+          navigate('/clientDashboard'); // Navigate to client dashboard
+        } else {
+          navigate('/scientistDashboard'); // Navigate to scientist dashboard
+        }
       } else {
-        alert(response.data.message);
+        alert(response.data.message); // Show error message
       }
     } catch (error) {
       console.error('There was an error logging in!', error);
+      alert('There was an error during the login process.'); // Generic error message
     }
   };
 
