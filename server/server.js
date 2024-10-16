@@ -1,40 +1,40 @@
 import express from 'express';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import db from './db.js'; // Ensure to use the .js extension for local files
+import mysql from 'mysql2';
 
-// Initialize Express
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+const PORT = process.env.PORT || 3000;
 
-// Login Endpoint
-app.post('/login', (req, res) => {
-  const { clientId, password } = req.body;
-
-  // Query to validate the user login based on client_id and password
-  const query = `
-    SELECT User.user_id, User.name, Client.status
-    FROM User
-    JOIN Client ON User.user_id = Client.client_id
-    WHERE Client.client_id = ? AND User.password = ?;
-  `;
-
-  db.query(query, [clientId, password], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Server error' });
-    }
-
-    if (result.length > 0) {
-      res.json({ success: true, user: result[0] });
-    } else {
-      res.json({ success: false, message: 'Invalid client ID or password' });
-    }
-  });
+// Create MySQL connection
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'mereces', // your MySQL password
+    database: 'genome', // replace with your database name
 });
 
-// Start the Server
-app.listen(3000, () => {
-  console.log('Server is running on port 5000');
+// Connect to MySQL
+connection.connect((err) => {
+    if (err) {
+        console.error('Error connecting to the database:', err);
+        return;
+    }
+    console.log('Connected to the MySQL database.');
+});
+
+// Middleware to parse JSON requests
+app.use(express.json());
+
+// Example route to fetch data
+app.get('/data', (req, res) => {
+    connection.query('SELECT * FROM user', (err, results) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        res.json(results);
+    });
+});
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
