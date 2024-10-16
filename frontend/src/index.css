@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes move-dna {
+    0% { background-position: 0 0; }
+    100% { background-position: 1000px 1000px; }
+  }
+  
+  .dna-animation {
+    background-image: url('https://www.your-dna-animation-link.com'); /* You can use an animated SVG or GIF of a DNA strand */
+    background-size: cover;
+    animation: move-dna 20s linear infinite;
+  }
+  
