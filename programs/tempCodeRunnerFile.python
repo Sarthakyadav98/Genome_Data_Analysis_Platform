@@ -1,0 +1,57 @@
+from Bio.Align import PairwiseAligner
+import mysql.connector
+
+# Set up the database connection
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="mereces",
+    database="genome"
+)
+
+# Function to fetch the sequence by species_id
+def fetch_sequence(species_id):
+    cursor = db.cursor()
+    query = "SELECT Sequence FROM Genomic_Data WHERE Species_id = %s"
+    cursor.execute(query, (species_id,))
+    result = cursor.fetchone()
+    cursor.close()
+    
+    if result:
+        return result[0]
+    else:
+        print(f"No sequence found for species_id: {species_id}")
+        return None
+
+# Prompt user for species IDs
+species_id_1 = input("Enter the first species_id: ")
+species_id_2 = input("Enter the second species_id: ")
+
+# Fetch sequences
+seq1 = fetch_sequence(species_id_1)
+seq2 = fetch_sequence(species_id_2)
+
+if seq1 and seq2:
+    # Create an aligner object
+    aligner = PairwiseAligner()
+
+    # Align the sequences
+    alignments = aligner.align(seq1, seq2)
+    alignment = alignments[0]
+
+    # Extract alignment score
+    alignment_score = alignment.score
+
+    # Count mismatches and gaps
+    mismatches = sum(1 for a, b in zip(alignment.target, alignment.query) if a != b and a != '-' and b != '-')
+    gaps = sum(1 for a, b in zip(alignment.target, alignment.query) if a == '-' or b == '-')
+
+    # Print the results
+    print(f"Alignment score: {alignment_score}")
+    print(f"Mismatches: {mismatches}")
+    print(f"Gaps: {gaps}")
+else:
+    print("Could not retrieve sequences for alignment.")
+
+# Close the database connection
+db.close()

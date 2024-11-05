@@ -1,4 +1,3 @@
-// routes/login.js
 import express from 'express';
 import connection from '../db.js';
 
@@ -13,13 +12,13 @@ router.post('/', (req, res) => {
         const query = `
             SELECT User.user_id, User.name, Client.status
             FROM User
-            JOIN Client ON User.user_id = Client.client_id
-            WHERE Client.client_id = ? AND User.password = ?;
+            JOIN Client ON User.user_id = Client.user_id
+            WHERE Client.user_id = ? AND User.password = ?;
         `;
 
         connection.query(query, [clientId, password], (err, result) => {
             if (err) {
-                console.error(err);
+                console.error('Client login error:', err);
                 return res.status(500).json({ message: 'Server error' });
             }
 
@@ -35,12 +34,12 @@ router.post('/', (req, res) => {
             SELECT User.user_id, User.name, Scientist.institution_id
             FROM User
             JOIN Scientist ON User.user_id = Scientist.user_id
-            WHERE Scientist.scientist_id = ? AND User.password = ? AND Scientist.institution_id = ?;
+            WHERE Scientist.user_id = ? AND User.password = ? AND Scientist.institution_id = ?;
         `;
 
         connection.query(query, [scientistId, password, institutionId], (err, result) => {
             if (err) {
-                console.error(err);
+                console.error('Scientist login error:', err);
                 return res.status(500).json({ message: 'Server error' });
             }
 

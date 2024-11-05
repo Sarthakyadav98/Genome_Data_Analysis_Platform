@@ -1,20 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Function to handle logout
   const handleLogout = () => {
-    // You can add any necessary logout logic here (like clearing local storage or tokens)
+    // Add any necessary logout logic here (like clearing local storage or tokens)
     navigate('/'); // Redirect to the home page
   };
 
+  // Determine whether to show the Search link or the Dashboard link
+  const isOnSearchPage = location.pathname === '/clientDashboard/searcherSpecies';
+
   return (
     <nav className="bg-gray-800 p-4 text-white flex justify-between items-center">
-      {/* Left Side: Search for a Species */}
+      {/* Left Side: Conditional Link */}
       <div>
-        <Link to="/search-species" className="hover:underline text-xl">Search For A Species</Link>
+        <Link 
+          to={isOnSearchPage ? '/clientDashboard' : '/clientDashboard/searcherSpecies'} 
+          className="hover:underline text-xl"
+        >
+          {isOnSearchPage ? 'Home Page' : 'Search For A Species'}
+        </Link>
       </div>
 
       {/* Middle: Title */}

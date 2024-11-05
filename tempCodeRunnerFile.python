@@ -1,0 +1,64 @@
+from Bio import Phylo, SeqIO
+from Bio.Phylo.TreeConstruction import DistanceTreeConstructor, DistanceCalculator
+from Bio.Align import MultipleSeqAlignment
+from Bio.SeqRecord import SeqRecord
+from Bio.Seq import Seq
+import mysql.connector
+
+# Function to fetch sequences from the database
+def fetch_sequence(species_id, connection):
+    cursor = connection.cursor()
+    query = "SELECT Sequence FROM Genomic_Data WHERE Species_id = %s"
+    cursor.execute(query, (species_id,))
+    result = cursor.fetchone()
+    return result[0] if result else None
+
+# Set up database connection
+db_config = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'mereces',
+    'database': 'genome'
+}
+connection = mysql.connector.connect(**db_config)
+
+# Species pairs to analyze
+species_pairs = [
+    ('Cat', 'Dog'), 
+    # Add more pairs as needed
+]
+
+# Calculate and populate the phylogenetic table
+for species1, species2 in species_pairs:
+    # Fetch sequences
+    seq1 = fetch_sequence(species1, connection)
+    seq2 = fetch_sequence(species2, connection)
+    
+    if seq1 and seq2:
+        # Perform alignment
+        records = [SeqRecord(Seq(seq1), id=species1), SeqRecord(Seq(seq2), id=species2)]
+        alignment = MultipleSeqAlignment(records)
+        
+        # Calculate evolutionary distance and construct the tree
+        calculator = DistanceCalculator('identity')
+        dm = calculator.get_distance(alignment)
+        constructor = DistanceTreeConstructor()
+        tree = constructor.upgma(dm)
+        
+        # Extract distance and common ancestor
+        evolutionary_distance = dm[species1, species2]
+        common_ancestor = tree.root.clades[0].name or "Inferred Common Ancestor"
+        
+        # Insert into Phylogenetic_Analysis table
+        cursor = connection.cursor()
+        insert_query = """
+            INSERT INTO Phylogenetic_Analysis (Species_ID_1, Species_ID_2, Evolutionary_Distance, Common_Ancestor)
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (species1, species2, evolutionary_distance, common_ancestor))
+        connection.commit()
+
+        print(f"Inserted data for {species1} and {species2}: Distance={evolutionary_distance}, Ancestor={common_ancestor}")
+
+# Close the database connection
+connection.close()
